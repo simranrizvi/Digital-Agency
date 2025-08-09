@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",                // 👈 root folder of the whole project
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["*"]                // 👈 allows @/context, @/app, @/utils etc.
     }
   }
 }
