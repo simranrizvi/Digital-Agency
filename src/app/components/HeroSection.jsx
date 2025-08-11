@@ -59,7 +59,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-black/40 rounded-none md:rounded-4xl z-0"></div>
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 w-full h-full">
         {/* Left Content */}
-        <div className="rounded-none md:rounded flex flex-col justify-center md:justify-end h-full pb-[40px] pl-[30px] md:pt-0 pt-[165px] text-left items-start md:text-left items-center md:items-start">
+        <div className="rounded-none md:rounded flex flex-col justify-center md:justify-end h-full pb-[40px] pl-[30px] md:pt-0 pt-[165px] text-left items-start md:text-left r md:items-start">
           <h2 className="font-bold text-[50px] md:text-[80px] text-white leading-tight md:leading-none">
             We Build
             <br />
