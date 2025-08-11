@@ -1,8 +1,14 @@
 "use client";
 import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
-import React, { useEffect, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import React, { useRef, useState, useEffect } from "react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useAnimation
+} from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 
@@ -46,7 +52,6 @@ const FloatingShapes = () => {
       onMouseMove={handleMouseMove}
       className="absolute inset-0 overflow-hidden -z-10"
     >
-      {/* Floating circles with reduced opacity for subtle effect */}
       <motion.div
         className="absolute top-1/4 left-1/4 w-56 h-56 rounded-full bg-blue-100 opacity-10 blur-3xl"
         style={{
@@ -61,11 +66,10 @@ const FloatingShapes = () => {
           y: useTransform(springY, [0, 600], [0, -60])
         }}
       />
-      {/* Floating bubbles */}
       {[...Array(8)].map((_, i) => (
         <motion.div
           key={i}
-          className={`absolute rounded-full bg-blue-200 opacity-5`}
+          className="absolute rounded-full bg-blue-200 opacity-5"
           style={{
             width: `${Math.floor(Math.random() * 30) + 15}px`,
             height: `${Math.floor(Math.random() * 30) + 15}px`,
@@ -87,7 +91,11 @@ const FloatingShapes = () => {
             x: [0, (Math.random() - 0.5) * 30],
             opacity: [0.03, 0.1]
           }}
-          transition={{ duration: 15 + Math.random() * 25, repeat: Infinity, repeatType: "reverse" }}
+          transition={{
+            duration: 15 + Math.random() * 25,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
         />
       ))}
     </div>
@@ -99,15 +107,52 @@ export default function ScrollImageSection() {
   const [ref2, inView2] = useInView({ threshold: 0.2 });
   const [ref3, inView3] = useInView({ threshold: 0.2 });
 
+  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
+  const controls = useAnimation();
+
   const images = [
     { left: "/left1.png", right: "/right1.png", height: "h-64" },
     { left: "/left2.png", right: "/right2.png", height: "h-64" },
     { left: "/left3.png", right: "/right3.png", height: "h-64" }
   ];
 
+  // Merge left and right images for mobile view
+  const mobileImages = images.flatMap(img => [img.left, img.right]);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobileOrTablet(window.innerWidth < 1024);
+    };
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  const itemWidth = isMobileOrTablet ? 240 : 300;
+  const gap = 16;
+  const totalWidth = mobileImages.length * (itemWidth + gap);
+
+  useEffect(() => {
+    if (isMobileOrTablet) {
+      controls.start({
+        x: [0, -totalWidth],
+        transition: {
+          x: {
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 15,
+            ease: "linear"
+          }
+        }
+      });
+    } else {
+      controls.stop();
+      controls.set({ x: 0 });
+    }
+  }, [isMobileOrTablet, controls, totalWidth]);
+
   return (
-    <section className="relative min-h-[50vh] flex items-center justify-center bg-white px-6 py-8 overflow-hidden rounded-3xl shadow-none">
-      {/* Hide scrollbar for the entire page */}
+    <section className="relative min-h-[50vh] flex items-center justify-center bg-white px-6 py-8 overflow-hidden rounded-3xl">
       <style jsx global>{`
         html {
           overflow-y: scroll;
@@ -119,10 +164,10 @@ export default function ScrollImageSection() {
         }
       `}</style>
 
-      {/* Animated background */}
       <FloatingShapes />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 w-full max-w-7xl bg-white/90 backdrop-blur-sm rounded-3xl p-6 gap-6">
+      {/* Desktop */}
+      <div className="hidden lg:grid grid-cols-3 w-full max-w-7xl bg-white/90 backdrop-blur-sm rounded-3xl p-6 gap-6">
         {/* Left Column */}
         <div className="flex flex-col gap-6">
           {images.map((img, index) => (
@@ -138,7 +183,7 @@ export default function ScrollImageSection() {
                   ? "visible"
                   : "hiddenLeft"
               }
-              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300`}
+              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg`}
             >
               <Image
                 src={img.left}
@@ -151,7 +196,7 @@ export default function ScrollImageSection() {
           ))}
         </div>
 
-        {/* Center Content */}
+        {/* Center */}
         <div className="flex flex-col items-center justify-center text-center p-4">
           <motion.div
             className="max-w-full mx-auto"
@@ -160,48 +205,20 @@ export default function ScrollImageSection() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <div className="flex gap-2 items-center justify-center mb-4">
-              <motion.span 
-                className="w-8 h-8 bg-white rounded-full border-2 border-blue-500"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              />
-              <motion.span 
-                className="w-8 h-8 bg-blue-500 rounded-full"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-            </div>
-
-            <motion.h2
-              className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight mb-3"
-            >
+            <h2 className="text-3xl font-bold text-gray-900 leading-tight mb-3">
               Our <span className="text-blue-500">Creative</span>
               <br />
               Portfolio
-            </motion.h2>
-
-            <motion.p 
-              className="mt-2 mb-6 text-gray-600 max-w-xs mx-auto"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
+            </h2>
+            <p className="mt-2 mb-6 text-gray-600 max-w-xs mx-auto">
               Each project reflects our passion for digital excellence.
-            </motion.p>
-
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-block"
-            >
-              <Link href="/about">
-                <button className="font-bold flex flex-row items-center gap-3 px-6 py-2 text-white border-0 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg">
-                  <span>Explore More</span>
-                  <FiArrowRight className="text-xl bg-white text-blue-600 rounded-full w-7 h-7 p-1" />
-                </button>
-              </Link>
-            </motion.div>
+            </p>
+            <Link href="/about">
+              <button className="font-bold flex items-center gap-3 px-6 py-2 text-white rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md">
+                <span>Explore More</span>
+                <FiArrowRight className="text-xl bg-white text-blue-600 rounded-full w-7 h-7 p-1" />
+              </button>
+            </Link>
           </motion.div>
         </div>
 
@@ -220,7 +237,7 @@ export default function ScrollImageSection() {
                   ? "visible"
                   : "hiddenRight"
               }
-              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300`}
+              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg`}
             >
               <Image
                 src={img.right}
@@ -231,6 +248,42 @@ export default function ScrollImageSection() {
               />
             </motion.div>
           ))}
+        </div>
+      </div>
+
+      {/* Mobile & Tablet */}
+      <div className="lg:hidden flex flex-col w-full max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2">
+            Our <span className="text-blue-500">Creative</span> Portfolio
+          </h2>
+          <p className="text-gray-600 text-sm max-w-sm mx-auto">
+            Each project reflects our passion for digital excellence.
+          </p>
+        </div>
+
+        <div className="overflow-hidden">
+          <motion.div
+            className="flex gap-4 w-max"
+            animate={controls}
+            style={{ x: 0 }}
+          >
+            {[...mobileImages, ...mobileImages].map((src, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 rounded-xl overflow-hidden shadow-md"
+                style={{ width: `${itemWidth}px`, height: "180px" }}
+              >
+                <Image
+                  src={src}
+                  alt=""
+                  width={itemWidth}
+                  height={180}
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
