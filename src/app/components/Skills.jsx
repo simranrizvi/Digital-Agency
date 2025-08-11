@@ -1,11 +1,24 @@
 'use client'
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiArrowRight } from "react-icons/fi";
 import { FaPaintBrush, FaMobileAlt, FaSearch, FaHeadset, FaClock, FaCogs } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Skills = () => {
   const [isOn, setIsOn] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    // Set initial width only on client side
+    setWindowWidth(window.innerWidth);
+
+    // Update width on resize
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup listener on unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const creativeCards = [
     { icon: <FaPaintBrush size={24} className="text-black" />, title: "Creative Skills", desc: "Unique designs crafted for your brand, engaging users with cutting-edge visuals." },
@@ -26,6 +39,15 @@ export const Skills = () => {
   ];
 
   const cardsToShow = isOn ? creativeCards : genericCards;
+
+  // Calculate toggle position safely
+  const toggleX = isOn
+    ? windowWidth < 640
+      ? 20
+      : windowWidth < 768
+      ? 26
+      : 32
+    : 0;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
@@ -49,10 +71,12 @@ export const Skills = () => {
               className="relative w-12 sm:w-14 md:w-16 h-6 sm:h-7 md:h-8 rounded-full bg-gray-300 flex items-center px-1"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Toggle switch"
             >
               <motion.span
                 className="w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 bg-white rounded-full shadow-lg"
-                animate={{ x: isOn ? (window.innerWidth < 640 ? 20 : window.innerWidth < 768 ? 26 : 32) : 0 }}
+                animate={{ x: toggleX }}
+                transition={{ type: "spring", stiffness: 700, damping: 30 }}
               />
             </motion.button>
             <span className="text-black text-lg sm:text-xl md:text-2xl font-semibold">work with us.</span>

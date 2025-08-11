@@ -2,13 +2,7 @@
 import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 import React, { useRef, useState, useEffect } from "react";
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-  useAnimation
-} from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 
@@ -69,7 +63,7 @@ const FloatingShapes = () => {
       {[...Array(8)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-blue-200 opacity-5"
+          className={`absolute rounded-full bg-blue-200 opacity-5`}
           style={{
             width: `${Math.floor(Math.random() * 30) + 15}px`,
             height: `${Math.floor(Math.random() * 30) + 15}px`,
@@ -113,25 +107,25 @@ export default function ScrollImageSection() {
   const images = [
     { left: "/left1.png", right: "/right1.png", height: "h-64" },
     { left: "/left2.png", right: "/right2.png", height: "h-64" },
-    { left: "/left3.png", right: "/right3.png", height: "h-64" }
+    { left: "/left3.png", right: "/right3.png", height: "h-64" },
+
   ];
 
-  // Merge left and right images for mobile view
-  const mobileImages = images.flatMap(img => [img.left, img.right]);
-
+  // Detect mobile or tablet
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobileOrTablet(window.innerWidth < 1024);
+      setIsMobileOrTablet(window.innerWidth < 1024); 
     };
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  const itemWidth = isMobileOrTablet ? 240 : 300;
+  const itemWidth = isMobileOrTablet ? 240 : 300; 
   const gap = 16;
-  const totalWidth = mobileImages.length * (itemWidth + gap);
+  const totalWidth = images.length * (itemWidth + gap);
 
+  // Auto-slide on mobile/tablet
   useEffect(() => {
     if (isMobileOrTablet) {
       controls.start({
@@ -141,9 +135,9 @@ export default function ScrollImageSection() {
             repeat: Infinity,
             repeatType: "loop",
             duration: 15,
-            ease: "linear"
-          }
-        }
+            ease: "linear",
+          },
+        },
       });
     } else {
       controls.stop();
@@ -152,7 +146,7 @@ export default function ScrollImageSection() {
   }, [isMobileOrTablet, controls, totalWidth]);
 
   return (
-    <section className="relative min-h-[50vh] flex items-center justify-center bg-white px-6 py-8 overflow-hidden rounded-3xl">
+    <section className="relative min-h-[50vh] flex items-center justify-center bg-white px-6 py-8 overflow-hidden rounded-3xl shadow-none">
       <style jsx global>{`
         html {
           overflow-y: scroll;
@@ -166,11 +160,11 @@ export default function ScrollImageSection() {
 
       <FloatingShapes />
 
-      {/* Desktop */}
+      {/* Desktop Layout */}
       <div className="hidden lg:grid grid-cols-3 w-full max-w-7xl bg-white/90 backdrop-blur-sm rounded-3xl p-6 gap-6">
         {/* Left Column */}
         <div className="flex flex-col gap-6">
-          {images.map((img, index) => (
+          {images.slice(0, 3).map((img, index) => (
             <motion.div
               key={`left-${index}`}
               ref={index === 0 ? ref1 : index === 1 ? ref2 : ref3}
@@ -183,7 +177,7 @@ export default function ScrollImageSection() {
                   ? "visible"
                   : "hiddenLeft"
               }
-              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg`}
+              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300`}
             >
               <Image
                 src={img.left}
@@ -196,7 +190,7 @@ export default function ScrollImageSection() {
           ))}
         </div>
 
-        {/* Center */}
+        {/* Center Content */}
         <div className="flex flex-col items-center justify-center text-center p-4">
           <motion.div
             className="max-w-full mx-auto"
@@ -205,16 +199,23 @@ export default function ScrollImageSection() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 leading-tight mb-3">
+            <motion.h2
+              className="text-3xl font-bold text-gray-900 leading-tight mb-3"
+            >
               Our <span className="text-blue-500">Creative</span>
               <br />
               Portfolio
-            </h2>
-            <p className="mt-2 mb-6 text-gray-600 max-w-xs mx-auto">
+            </motion.h2>
+            <motion.p
+              className="mt-2 mb-6 text-gray-600 max-w-xs mx-auto"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
               Each project reflects our passion for digital excellence.
-            </p>
+            </motion.p>
             <Link href="/about">
-              <button className="font-bold flex items-center gap-3 px-6 py-2 text-white rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md">
+              <button className="font-bold flex flex-row items-center gap-3 px-6 py-2 text-white border-0 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg">
                 <span>Explore More</span>
                 <FiArrowRight className="text-xl bg-white text-blue-600 rounded-full w-7 h-7 p-1" />
               </button>
@@ -224,7 +225,7 @@ export default function ScrollImageSection() {
 
         {/* Right Column */}
         <div className="flex flex-col gap-6">
-          {images.map((img, index) => (
+          {images.slice(0, 3).map((img, index) => (
             <motion.div
               key={`right-${index}`}
               ref={index === 0 ? ref1 : index === 1 ? ref2 : ref3}
@@ -237,7 +238,7 @@ export default function ScrollImageSection() {
                   ? "visible"
                   : "hiddenRight"
               }
-              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg`}
+              className={`w-full ${img.height} relative group overflow-hidden rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300`}
             >
               <Image
                 src={img.right}
@@ -251,8 +252,9 @@ export default function ScrollImageSection() {
         </div>
       </div>
 
-      {/* Mobile & Tablet */}
+      {/* Mobile & Tablet Layout with smooth infinite slide */}
       <div className="lg:hidden flex flex-col w-full max-w-4xl mx-auto">
+        {/* Text on Top */}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-2">
             Our <span className="text-blue-500">Creative</span> Portfolio
@@ -262,20 +264,21 @@ export default function ScrollImageSection() {
           </p>
         </div>
 
+        {/* Auto Sliding Images */}
         <div className="overflow-hidden">
           <motion.div
             className="flex gap-4 w-max"
             animate={controls}
             style={{ x: 0 }}
           >
-            {[...mobileImages, ...mobileImages].map((src, index) => (
+            {[...images, ...images].map((img, index) => (
               <div
                 key={index}
                 className="flex-shrink-0 rounded-xl overflow-hidden shadow-md"
                 style={{ width: `${itemWidth}px`, height: "180px" }}
               >
                 <Image
-                  src={src}
+                  src={img.left}
                   alt=""
                   width={itemWidth}
                   height={180}
