@@ -5,7 +5,6 @@ import ScrollImageSection from './components/ScrollImageSection'; // ✅ updated
 import ImageSection from './components/ImageSection';
 import Image from './components/Image';
 import { Skills } from './components/Skills';
-import { OurServices } from './components/OurServices';
 import ServicesSection from './components/ServicesSection';
 
 
@@ -14,7 +13,7 @@ const Page = () => {
     <div>
       <HeroSection />
       <Introduction />
-      <ScrollImageSection /> {/* ✅ Correct name used */}
+      <ScrollImageSection/> 
       <ImageSection/>
       <Image/>
       <Skills/>
